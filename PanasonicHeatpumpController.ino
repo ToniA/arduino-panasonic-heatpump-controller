@@ -53,98 +53,229 @@
 #define PANASONIC_AIRCON1_HS_AUTO    0x08 // Horizontal swing
 #define PANASONIC_AIRCON1_HS_MANUAL  0x00
 
+// Panasonic DKE timing constants
+#define PANASONIC_AIRCON2_HDR_MARK   3500
+#define PANASONIC_AIRCON2_HDR_SPACE  1800
+#define PANASONIC_AIRCON2_BIT_MARK   420
+#define PANASONIC_AIRCON2_ONE_SPACE  1350
+#define PANASONIC_AIRCON2_ZERO_SPACE 470
+#define PANASONIC_AIRCON2_MSG_SPACE  10000
+
+// Panasonic DKE codes
+#define PANASONIC_AIRCON2_MODE_AUTO  0x00 // Operating mode
+#define PANASONIC_AIRCON2_MODE_HEAT  0x40
+#define PANASONIC_AIRCON2_MODE_COOL  0x30
+#define PANASONIC_AIRCON2_MODE_DRY   0x20
+#define PANASONIC_AIRCON2_MODE_FAN   0x60
+#define PANASONIC_AIRCON2_MODE_OFF   0x00 // Power OFF
+#define PANASONIC_AIRCON2_MODE_ON    0x01
+#define PANASONIC_AIRCON2_TIMER_CNL  0x08
+#define PANASONIC_AIRCON2_FAN_AUTO   0xA0 // Fan speed
+#define PANASONIC_AIRCON2_FAN1       0x30
+#define PANASONIC_AIRCON2_FAN2       0x40
+#define PANASONIC_AIRCON2_FAN3       0x50
+#define PANASONIC_AIRCON2_FAN4       0x60
+#define PANASONIC_AIRCON2_FAN5       0x70
+#define PANASONIC_AIRCON2_VS_AUTO    0x0F // Vertical swing
+#define PANASONIC_AIRCON2_VS_UP      0x01
+#define PANASONIC_AIRCON2_VS_MUP     0x02
+#define PANASONIC_AIRCON2_VS_MIDDLE  0x03
+#define PANASONIC_AIRCON2_VS_MDOWN   0x04
+#define PANASONIC_AIRCON2_VS_DOWN    0x05
+#define PANASONIC_AIRCON2_HS_AUTO    0x0D // Horizontal swing
+#define PANASONIC_AIRCON2_HS_MIDDLE  0x06
+#define PANASONIC_AIRCON2_HS_LEFT    0x09
+#define PANASONIC_AIRCON2_HS_MLEFT   0x0A
+#define PANASONIC_AIRCON2_HS_MRIGHT  0x0B
+#define PANASONIC_AIRCON2_HS_RIGHT   0x0C
+
 // flash-based web pages to save precious RAM
 
-P(indexpage) = "<!DOCTYPE html>"
-"<html>"
-"<body>"
-""
-"<form name=\"input\" action=\"send_ir.html\" method=\"get\">"
-""
-"<table>"
-"<tr><td>"
-"<input type=\"checkbox\" name=\"power\" value=\"power\">"
-"</td><td>"
-"Switch power state"
-"</td></tr>"
-""
-"<tr><td>"
-"<select name=\"mode\">"
-"  <option value=\"1\">AUTO</option>"
-"  <option value=\"2\" selected=\"selected\">HEAT</option>"
-"  <option value=\"3\">COOL</option>"
-"  <option value=\"4\">DRY</option>"
-"  <option value=\"5\">FAN</option>"
-"</select> "
-"</td><td>"
-"Mode"
-"</td></tr>"
-""
-"<tr><td>"
-"<select name=\"fan\">"
-"  <option value=\"1\" selected=\"selected\">AUTO</option>"
-"  <option value=\"2\">1</option>"
-"  <option value=\"3\">2</option>"
-"  <option value=\"4\">3</option>"
-"  <option value=\"5\">4</option>"
-"  <option value=\"6\">5</option>"
-"</select> "
-"</td><td>"
-"Fan speed"
-"</td></tr>"
-""
-"<tr><td>"
-"<select name=\"temperature\">"
-"  <option value=\"16\">16</option>"
-"  <option value=\"17\">17</option>"
-"  <option value=\"18\">18</option>"
-"  <option value=\"19\">19</option>"
-"  <option value=\"20\">20</option>"
-"  <option value=\"21\">21</option>"
-"  <option value=\"22\">22</option>"
-"  <option value=\"23\" selected=\"selected\">23</option>"
-"  <option value=\"24\">24</option>"
-"  <option value=\"25\">25</option>"
-"  <option value=\"26\">26</option>"
-"  <option value=\"27\">27</option>"
-"  <option value=\"28\">28</option>"
-"  <option value=\"29\">29</option>"
-"  <option value=\"30\">30</option>"
-"</select> "
-"</td><td>"
-"Temperature"
-"</td></tr>"
-""
-"<tr><td>"
-"<select name=\"vswing\">"
-"  <option value=\"1\" >AUTO</option>"
-"  <option value=\"2\" selected=\"selected\">UP</option>"
-"  <option value=\"3\" >MIDDLE UP</option>"
-"  <option value=\"4\" >MIDDLE</option>"
-"  <option value=\"5\" >MIDDLE DOWN</option>"
-"  <option value=\"6\" >DOWN</option>"
-"</select>"
-"</td><td>"
-"Vertical swing"
-"</td></tr>"
-""
-"<tr><td>"
-"<select name=\"hswing\">"
-"  <option value=\"1\" >AUTO</option>"
-"  <option value=\"2\" selected=\"selected\">MANUAL</option>"
-"</select>"
-"</td><td>"
-"Horizontal swing"
-"</td></tr>"
-""
-"</table>"
-""
-"<br>"
-"<input type=\"submit\" value=\"Submit\">"
-"</form> "
-""
-"</body>"
-"</html>";
+P(indexpage) = "<!DOCTYPE html>\n"
+"<html>\n"
+"<body>\n"
+"\n"
+"\n"
+"<table border=\"1\">\n"
+"<tr><td>\n"
+"PANASONIC CPK\n"
+"<form name=\"input\" action=\"send_ir_ckp.html\" method=\"get\">\n"
+"<table border=\"1\">\n"
+"<tr><td>\n"
+"<input type=\"checkbox\" name=\"power\" value=\"power\">\n"
+"</td><td>\n"
+"Switch power state\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"mode\">\n"
+" <option value=\"1\">AUTO</option>\n"
+" <option value=\"2\" selected=\"selected\">HEAT</option>\n"
+" <option value=\"3\">COOL</option>\n"
+" <option value=\"4\">DRY</option>\n"
+" <option value=\"5\">FAN</option>\n"
+"</select> \n"
+"</td><td>\n"
+"Mode\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"fan\">\n"
+" <option value=\"1\" selected=\"selected\">AUTO</option>\n"
+" <option value=\"2\">1</option>\n"
+" <option value=\"3\">2</option>\n"
+" <option value=\"4\">3</option>\n"
+" <option value=\"5\">4</option>\n"
+" <option value=\"6\">5</option>\n"
+"</select> \n"
+"</td><td>\n"
+"Fan speed\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"temperature\">\n"
+" <option value=\"16\">16</option>\n"
+" <option value=\"17\">17</option>\n"
+" <option value=\"18\">18</option>\n"
+" <option value=\"19\">19</option>\n"
+" <option value=\"20\">20</option>\n"
+" <option value=\"21\">21</option>\n"
+" <option value=\"22\">22</option>\n"
+" <option value=\"23\" selected=\"selected\">23</option>\n"
+" <option value=\"24\">24</option>\n"
+" <option value=\"25\">25</option>\n"
+" <option value=\"26\">26</option>\n"
+" <option value=\"27\">27</option>\n"
+" <option value=\"28\">28</option>\n"
+" <option value=\"29\">29</option>\n"
+" <option value=\"30\">30</option>\n"
+"</select> \n"
+"</td><td>\n"
+"Temperature\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"vswing\">\n"
+" <option value=\"1\" >AUTO</option>\n"
+" <option value=\"2\" selected=\"selected\">UP</option>\n"
+" <option value=\"3\" >MIDDLE UP</option>\n"
+" <option value=\"4\" >MIDDLE</option>\n"
+" <option value=\"5\" >MIDDLE DOWN</option>\n"
+" <option value=\"6\" >DOWN</option>\n"
+"</select>\n"
+"</td><td>\n"
+"Vertical swing\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"hswing\">\n"
+" <option value=\"1\" >AUTO</option>\n"
+" <option value=\"2\" selected=\"selected\">MANUAL</option>\n"
+"</select>\n"
+"</td><td>\n"
+"Horizontal swing\n"
+"</td></tr>\n"
+"\n"
+"</table>\n"
+"\n"
+"<input type=\"submit\" value=\"Submit CKP\">\n"
+"</form>\n"
+"</td>\n"
+"\n"
+"<td>\n"
+"PANASONIC DKE\n"
+"<form name=\"input\" action=\"send_ir_dke.html\" method=\"get\">\n"
+"<table border=\"1\">\n"
+"<tr><td>\n"
+"<input type=\"radio\" name=\"power\" value=\"1\" checked>ON\n"
+"<input type=\"radio\" name=\"power\" value=\"0\">OFF\n"
+"</td><td>\n"
+"Power state\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"mode\">\n"
+"  <option value=\"1\">AUTO</option>\n"
+"  <option value=\"2\" selected=\"selected\">HEAT</option>\n"
+"  <option value=\"3\">COOL</option>\n"
+"  <option value=\"4\">DRY</option>\n"
+"  <option value=\"5\">FAN</option>\n"
+"</select> \n"
+"</td><td>\n"
+"Mode\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"fan\">\n"
+" <option value=\"1\" selected=\"selected\">AUTO</option>\n"
+" <option value=\"2\">1</option>\n"
+" <option value=\"3\">2</option>\n"
+" <option value=\"4\">3</option>\n"
+" <option value=\"5\">4</option>\n"
+" <option value=\"6\">5</option>\n"
+"</select> \n"
+"</td><td>\n"
+"Fan speed\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"temperature\">\n"
+"  <option value=\"16\">16</option>\n"
+"  <option value=\"17\">17</option>\n"
+"  <option value=\"18\">18</option>\n"
+"  <option value=\"19\">19</option>\n"
+"  <option value=\"20\">20</option>\n"
+"  <option value=\"21\">21</option>\n"
+"  <option value=\"22\">22</option>\n"
+"  <option value=\"23\" selected=\"selected\">23</option>\n"
+"  <option value=\"24\">24</option>\n"
+"  <option value=\"25\">25</option>\n"
+"  <option value=\"26\">26</option>\n"
+"  <option value=\"27\">27</option>\n"
+"  <option value=\"28\">28</option>\n"
+"  <option value=\"29\">29</option>\n"
+"  <option value=\"30\">30</option>\n"
+"</select> \n"
+"</td><td>\n"
+"Temperature\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"vswing\">\n"
+"  <option value=\"1\" >AUTO</option>\n"
+"  <option value=\"2\" selected=\"selected\">UP</option>\n"
+"  <option value=\"3\" >MIDDLE UP</option>\n"
+"  <option value=\"4\" >MIDDLE</option>\n"
+"  <option value=\"5\" >MIDDLE DOWN</option>\n"
+"  <option value=\"6\" >DOWN</option>\n"
+"</select>\n"
+"</td><td>\n"
+"Vertical swing\n"
+"</td></tr>\n"
+"\n"
+"<tr><td>\n"
+"<select name=\"hswing\">\n"
+"  <option value=\"1\" selected=\"selected\">AUTO</option>\n"
+"  <option value=\"2\" >MIDDLE</option>\n"
+"  <option value=\"3\" >LEFT</option>\n"
+"  <option value=\"4\" >LEFT MIDDLE</option>\n"
+"  <option value=\"5\" >RIGHT</option>\n"
+"  <option value=\"6\" >RIGHT MIDDLE</option>\n"
+"</select>\n"
+"</td><td>\n"
+"Horizontal swing\n"
+"</td></tr>\n"
+"\n"
+"</td></tr>\n"
+"</table>\n"
+"<input type=\"submit\" value=\"Submit DKE\">\n"
+"</form>\n"
+"</td></tr>\n"
+"\n"
+"</table>\n"
+"\n"
+"</body>\n"
+"</html>\n";
 
 P(formactionpage_header) = "<!DOCTYPE html>"
 "<html>"
@@ -192,12 +323,12 @@ void sendPanasonicCKP(byte operatingMode, byte fanSpeed, byte temperature, byte 
   sendBuffer[3]  = 0x36;
 
   // Send the code
-  sendPanasonicCKP(sendBuffer);
+  sendPanasonicCKPraw(sendBuffer);
 }
 
-// Send the Panasonic raw code
+// Send the Panasonic CKP raw code
 
-void sendPanasonicCKP(byte sendBuffer[])
+void sendPanasonicCKPraw(byte sendBuffer[])
 {
   // 40 kHz PWM frequency
   enableIROut(40);
@@ -239,6 +370,56 @@ void sendPanasonicCKP(byte sendBuffer[])
   mark(PANASONIC_AIRCON1_BIT_MARK);
   space(0);
 }
+
+// Send the Panasonic DKE raw code
+
+void sendPanasonicDKEraw(byte operatingMode, byte fanSpeed, byte temperature, byte swingV, byte swingH)
+{
+  byte DKE_template[] = { 0x02, 0x20, 0xE0, 0x04, 0x00, 0x00, 0x00, 0x06, 0x02, 0x20, 0xE0, 0x04, 0x00, 0x48, 0x2E, 0x80, 0xA3, 0x0D, 0x00, 0x0E, 0xE0, 0x00, 0x00, 0x01, 0x00, 0x06, 0xA2 };
+  byte checksum = 0xF4;
+
+  DKE_template[13] = operatingMode;
+  DKE_template[14] = temperature << 1;
+  DKE_template[16] = fanSpeed | swingV;
+  DKE_template[17] = swingH;
+
+  // Checksum
+
+  for (int i=0; i<26; i++) {
+    checksum += DKE_template[i];
+  }
+  
+  DKE_template[26] = checksum;
+
+  // 40 kHz PWM frequency
+  enableIROut(40);
+
+  // Header
+  mark(PANASONIC_AIRCON2_HDR_MARK);
+  space(PANASONIC_AIRCON2_HDR_SPACE);
+
+  // First 8 bytes
+  for (int i=0; i<8; i++) {
+    sendIRByte(DKE_template[i], PANASONIC_AIRCON2_BIT_MARK, PANASONIC_AIRCON2_ZERO_SPACE, PANASONIC_AIRCON2_ONE_SPACE);
+  }
+
+  // Pause
+  mark(PANASONIC_AIRCON2_BIT_MARK);
+  space(PANASONIC_AIRCON2_MSG_SPACE);
+
+  // Header
+  mark(PANASONIC_AIRCON2_HDR_MARK);
+  space(PANASONIC_AIRCON2_HDR_SPACE);
+
+  // Last 19 bytes
+  for (int i=8; i<27; i++) {
+    sendIRByte(DKE_template[i], PANASONIC_AIRCON2_BIT_MARK, PANASONIC_AIRCON2_ZERO_SPACE, PANASONIC_AIRCON2_ONE_SPACE);
+  }
+
+  mark(PANASONIC_AIRCON2_BIT_MARK);
+  space(0);
+}
+
 
 // Send a byte over IR
 
@@ -299,9 +480,9 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 }
 
 
-// The send_ir.html. This handles the parameters submitted by the form
+// The send_ir_ckp.html. This handles the parameters submitted by the form
 
-void formCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+void ckpFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
 {
   URLPARAM_RESULT rc;
   char name[NAMELEN];
@@ -441,6 +622,166 @@ void formCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, 
   sendPanasonicCKP(operatingMode, fanSpeed, temperature, swingV, swingH);
 }
 
+// The send_ir_dke.html. This handles the parameters submitted by the form
+
+void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
+{
+  URLPARAM_RESULT rc;
+  char name[NAMELEN];
+  char value[VALUELEN];
+  int param = 0;
+
+  // Sensible defaults for the heat pump mode
+
+  byte operatingMode = PANASONIC_AIRCON2_TIMER_CNL;
+  byte fanSpeed      = PANASONIC_AIRCON2_FAN_AUTO;
+  byte temperature   = 23;
+  byte swingV        = PANASONIC_AIRCON2_VS_UP;
+  byte swingH        = PANASONIC_AIRCON2_HS_AUTO;
+
+  server.httpSuccess();
+  server.printP(formactionpage_header);
+
+  if (strlen(url_tail))
+    {
+    while (strlen(url_tail))
+      {
+      rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
+      if (rc != URLPARAM_EOS)
+        {
+          if (strcmp(name, "power") == 0 )
+          {
+            param = atoi(value);
+ 
+            switch (param)
+            {
+              case 1:
+                operatingMode |= PANASONIC_AIRCON2_MODE_ON;
+            }
+          }
+          else if (strcmp(name, "mode") == 0 )
+          {
+            param = atoi(value);
+            
+            switch (param)
+            {
+              case 1:
+                operatingMode |= PANASONIC_AIRCON2_MODE_AUTO;
+                break;
+              case 2:
+                operatingMode |= PANASONIC_AIRCON2_MODE_HEAT;
+                break;
+              case 3:
+                operatingMode |= PANASONIC_AIRCON2_MODE_COOL;
+                break;
+              case 4:
+                operatingMode |= PANASONIC_AIRCON2_MODE_DRY;
+                break;
+              case 5:
+                operatingMode |= PANASONIC_AIRCON2_MODE_FAN;
+                temperature = 27; // Temperature is always 27 in FAN mode
+                break;
+            }
+          }
+          else if (strcmp(name, "fan") == 0 )
+          {
+            param = atoi(value);
+            
+            switch (param)
+            {
+              case 1:
+                fanSpeed = PANASONIC_AIRCON2_FAN_AUTO;
+                break;
+              case 2:
+                fanSpeed = PANASONIC_AIRCON2_FAN1;
+                break;
+              case 3:
+                fanSpeed = PANASONIC_AIRCON2_FAN2;
+                break;
+              case 4:
+                fanSpeed = PANASONIC_AIRCON2_FAN3;
+                break;
+              case 5:
+                fanSpeed = PANASONIC_AIRCON2_FAN4;
+                break;
+              case 6:
+                fanSpeed = PANASONIC_AIRCON2_FAN5;
+                break;
+            }
+          }
+          else if (strcmp(name, "temperature") == 0 )
+          {
+            param = atoi(value);
+            if ( param >= 15 && param <= 31 && temperature == 23)
+            {
+              temperature = param;
+            }
+          }
+          else if (strcmp(name, "vswing") == 0 )
+          {
+            param = atoi(value);
+        
+            switch (param)
+            {
+              case 1:
+                swingV = PANASONIC_AIRCON2_VS_AUTO;
+                break;
+              case 2:
+                swingV = PANASONIC_AIRCON2_VS_UP;
+                break;
+              case 3:
+                swingV = PANASONIC_AIRCON2_VS_MUP;
+                break;
+              case 4:
+                swingV = PANASONIC_AIRCON2_VS_MIDDLE;
+                break;
+              case 5:
+                swingV = PANASONIC_AIRCON2_VS_MDOWN;
+                break;
+              case 6:
+                swingV = PANASONIC_AIRCON2_VS_DOWN;
+                break;
+            }
+          }
+          else if (strcmp(name, "hswing") == 0 )
+          {
+            param = atoi(value);
+
+            switch (param)
+            {
+              case 1:
+                swingH = PANASONIC_AIRCON2_HS_AUTO;
+                break;
+              case 2:
+                swingH = PANASONIC_AIRCON2_HS_MIDDLE;
+                break;
+              case 3:
+                swingH = PANASONIC_AIRCON2_HS_LEFT;
+                break;
+              case 4:
+                swingH = PANASONIC_AIRCON2_HS_MLEFT;
+                break;
+              case 5:
+                swingH = PANASONIC_AIRCON2_HS_RIGHT;
+                break;
+              case 6:
+                swingH = PANASONIC_AIRCON2_HS_MRIGHT;
+                break;
+            }
+          }          
+        server.print(name);
+        server.print(" = ");
+        server.print(param);
+        server.print("<br>");
+        }
+      }
+    }
+
+  server.printP(formactionpage_footer);
+
+  sendPanasonicDKEraw(operatingMode, fanSpeed, temperature, swingV, swingH);
+}
+
 // The setup
 
 void setup()
@@ -459,8 +800,9 @@ void setup()
   webserver.setDefaultCommand(&indexCmd);
   webserver.addCommand("index.html", &indexCmd);
 
-  // The form handler
-  webserver.addCommand("send_ir.html", &formCmd);
+  // The form handlers
+  webserver.addCommand("send_ir_ckp.html", &ckpFormCmd);
+  webserver.addCommand("send_ir_dke.html", &dkeFormCmd);
 
   // start the webserver
   webserver.begin();
