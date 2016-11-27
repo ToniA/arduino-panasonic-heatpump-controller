@@ -1,10 +1,10 @@
-// Simple web form based application to control a 
-// Panasonic CKP-series heat pump
+// Simple web form based application to control a
+// Panasonic DKE-series heat pump
 //
 // Connect an IR led (with 1k resistor in series)
-// between GND and digital pin 3
+// between GND and digital pin 3 (Mega 2560 pin 9)
 //
-// Browse to http://192.168.0.210 (or whatever you set as the address)
+// Browse to http://192.168.1.210 (or whatever you set as the address)
 
 // Requires the Ethernet shield and Webduino:
 // https://github.com/sirleech/Webduino
@@ -17,41 +17,11 @@
 #include "WebServer.h"
 
 
-// Infrared LED on PIN digital 3
+
+// Infrared LED on PIN digital 9
 // Connect with 1 kOhm resistor in series to GND
-#define IR_LED_PIN        3
+#define IR_LED_PIN        9
 
-
-// Panasonic CKP timing constants
-#define PANASONIC_AIRCON1_HDR_MARK   3400
-#define PANASONIC_AIRCON1_HDR_SPACE  3500
-#define PANASONIC_AIRCON1_BIT_MARK   800
-#define PANASONIC_AIRCON1_ONE_SPACE  2700
-#define PANASONIC_AIRCON1_ZERO_SPACE 1000
-#define PANASONIC_AIRCON1_MSG_SPACE  14000
-
-// Panasonic CKP codes
-#define PANASONIC_AIRCON1_MODE_AUTO  0x06 // Operating mode
-#define PANASONIC_AIRCON1_MODE_HEAT  0x04
-#define PANASONIC_AIRCON1_MODE_COOL  0x02
-#define PANASONIC_AIRCON1_MODE_DRY   0x03
-#define PANASONIC_AIRCON1_MODE_FAN   0x01
-#define PANASONIC_AIRCON1_MODE_ONOFF 0x00 // Toggle ON/OFF
-#define PANASONIC_AIRCON1_MODE_KEEP  0x08 // Do not toggle ON/OFF
-#define PANASONIC_AIRCON1_FAN_AUTO   0xF0 // Fan speed
-#define PANASONIC_AIRCON1_FAN1       0x20
-#define PANASONIC_AIRCON1_FAN2       0x30
-#define PANASONIC_AIRCON1_FAN3       0x40
-#define PANASONIC_AIRCON1_FAN4       0x50
-#define PANASONIC_AIRCON1_FAN5       0x60
-#define PANASONIC_AIRCON1_VS_AUTO    0xF0 // Vertical swing
-#define PANASONIC_AIRCON1_VS_UP      0x90
-#define PANASONIC_AIRCON1_VS_MUP     0xA0
-#define PANASONIC_AIRCON1_VS_MIDDLE  0xB0
-#define PANASONIC_AIRCON1_VS_MDOWN   0xC0
-#define PANASONIC_AIRCON1_VS_DOWN    0xD0
-#define PANASONIC_AIRCON1_HS_AUTO    0x08 // Horizontal swing
-#define PANASONIC_AIRCON1_HS_MANUAL  0x00
 
 // Panasonic DKE timing constants
 #define PANASONIC_AIRCON2_HDR_MARK   3500
@@ -67,6 +37,7 @@
 #define PANASONIC_AIRCON2_MODE_COOL  0x30
 #define PANASONIC_AIRCON2_MODE_DRY   0x20
 #define PANASONIC_AIRCON2_MODE_FAN   0x60
+#define PANASONIC_AIRCON2_MODE_MASK  0x70
 #define PANASONIC_AIRCON2_MODE_OFF   0x00 // Power OFF
 #define PANASONIC_AIRCON2_MODE_ON    0x01
 #define PANASONIC_AIRCON2_TIMER_CNL  0x08
@@ -98,91 +69,6 @@ P(indexpage) = "<!DOCTYPE html>\n"
 "\n"
 "<table border=\"1\">\n"
 "<tr><td>\n"
-"PANASONIC CPK\n"
-"<form name=\"input\" action=\"send_ir_ckp.html\" method=\"get\">\n"
-"<table border=\"1\">\n"
-"<tr><td>\n"
-"<input type=\"checkbox\" name=\"power\" value=\"power\">\n"
-"</td><td>\n"
-"Switch power state\n"
-"</td></tr>\n"
-"\n"
-"<tr><td>\n"
-"<select name=\"mode\">\n"
-" <option value=\"1\">AUTO</option>\n"
-" <option value=\"2\" selected=\"selected\">HEAT</option>\n"
-" <option value=\"3\">COOL</option>\n"
-" <option value=\"4\">DRY</option>\n"
-" <option value=\"5\">FAN</option>\n"
-"</select> \n"
-"</td><td>\n"
-"Mode\n"
-"</td></tr>\n"
-"\n"
-"<tr><td>\n"
-"<select name=\"fan\">\n"
-" <option value=\"1\" selected=\"selected\">AUTO</option>\n"
-" <option value=\"2\">1</option>\n"
-" <option value=\"3\">2</option>\n"
-" <option value=\"4\">3</option>\n"
-" <option value=\"5\">4</option>\n"
-" <option value=\"6\">5</option>\n"
-"</select> \n"
-"</td><td>\n"
-"Fan speed\n"
-"</td></tr>\n"
-"\n"
-"<tr><td>\n"
-"<select name=\"temperature\">\n"
-" <option value=\"16\">16</option>\n"
-" <option value=\"17\">17</option>\n"
-" <option value=\"18\">18</option>\n"
-" <option value=\"19\">19</option>\n"
-" <option value=\"20\">20</option>\n"
-" <option value=\"21\">21</option>\n"
-" <option value=\"22\">22</option>\n"
-" <option value=\"23\" selected=\"selected\">23</option>\n"
-" <option value=\"24\">24</option>\n"
-" <option value=\"25\">25</option>\n"
-" <option value=\"26\">26</option>\n"
-" <option value=\"27\">27</option>\n"
-" <option value=\"28\">28</option>\n"
-" <option value=\"29\">29</option>\n"
-" <option value=\"30\">30</option>\n"
-"</select> \n"
-"</td><td>\n"
-"Temperature\n"
-"</td></tr>\n"
-"\n"
-"<tr><td>\n"
-"<select name=\"vswing\">\n"
-" <option value=\"1\" >AUTO</option>\n"
-" <option value=\"2\" selected=\"selected\">UP</option>\n"
-" <option value=\"3\" >MIDDLE UP</option>\n"
-" <option value=\"4\" >MIDDLE</option>\n"
-" <option value=\"5\" >MIDDLE DOWN</option>\n"
-" <option value=\"6\" >DOWN</option>\n"
-"</select>\n"
-"</td><td>\n"
-"Vertical swing\n"
-"</td></tr>\n"
-"\n"
-"<tr><td>\n"
-"<select name=\"hswing\">\n"
-" <option value=\"1\" >AUTO</option>\n"
-" <option value=\"2\" selected=\"selected\">MANUAL</option>\n"
-"</select>\n"
-"</td><td>\n"
-"Horizontal swing\n"
-"</td></tr>\n"
-"\n"
-"</table>\n"
-"\n"
-"<input type=\"submit\" value=\"Submit CKP\">\n"
-"</form>\n"
-"</td>\n"
-"\n"
-"<td>\n"
 "PANASONIC DKE\n"
 "<form name=\"input\" action=\"send_ir_dke.html\" method=\"get\">\n"
 "<table border=\"1\">\n"
@@ -220,14 +106,16 @@ P(indexpage) = "<!DOCTYPE html>\n"
 "\n"
 "<tr><td>\n"
 "<select name=\"temperature\">\n"
+"  <option value=\"8\">8 (HEAT only)</option>\n"
+"  <option value=\"10\">10 (HEAT only)</option>\n"
 "  <option value=\"16\">16</option>\n"
 "  <option value=\"17\">17</option>\n"
 "  <option value=\"18\">18</option>\n"
 "  <option value=\"19\">19</option>\n"
 "  <option value=\"20\">20</option>\n"
-"  <option value=\"21\">21</option>\n"
+"  <option value=\"21\" selected=\"selected\">21</option>\n"
 "  <option value=\"22\">22</option>\n"
-"  <option value=\"23\" selected=\"selected\">23</option>\n"
+"  <option value=\"23\">23</option>\n"
 "  <option value=\"24\">24</option>\n"
 "  <option value=\"25\">25</option>\n"
 "  <option value=\"26\">26</option>\n"
@@ -242,8 +130,8 @@ P(indexpage) = "<!DOCTYPE html>\n"
 "\n"
 "<tr><td>\n"
 "<select name=\"vswing\">\n"
-"  <option value=\"1\" >AUTO</option>\n"
-"  <option value=\"2\" selected=\"selected\">UP</option>\n"
+"  <option value=\"1\" selected=\"selected\">AUTO</option>\n"
+"  <option value=\"2\" >UP</option>\n"
 "  <option value=\"3\" >MIDDLE UP</option>\n"
 "  <option value=\"4\" >MIDDLE</option>\n"
 "  <option value=\"5\" >MIDDLE DOWN</option>\n"
@@ -299,83 +187,12 @@ P(formactionpage_footer) = ""
 
 WebServer webserver("",80);
 
-// Send the Panasonic CKP code
-
-void sendPanasonicCKP(byte operatingMode, byte fanSpeed, byte temperature, byte swingV, byte swingH)
-{
-  byte sendBuffer[4];
-  
-  // Fan speed & temperature, temperature needs to be 27 in FAN mode
-  if (operatingMode == PANASONIC_AIRCON1_MODE_FAN || operatingMode == (PANASONIC_AIRCON1_MODE_FAN | PANASONIC_AIRCON1_MODE_KEEP ))
-  {
-    temperature = 27;
-  }
-
-  sendBuffer[0] = fanSpeed | (temperature - 15);
-
-  // Power toggle & operation mode
-  sendBuffer[1] = operatingMode;
-
-  // Swings
-  sendBuffer[2] = swingV | swingH;
-
-  // Always 0x36
-  sendBuffer[3]  = 0x36;
-
-  // Send the code
-  sendPanasonicCKPraw(sendBuffer);
-}
-
-// Send the Panasonic CKP raw code
-
-void sendPanasonicCKPraw(byte sendBuffer[])
-{
-  // 40 kHz PWM frequency
-  enableIROut(40);
-
-  // Header, two first bytes repeated
-  mark(PANASONIC_AIRCON1_HDR_MARK);
-  space(PANASONIC_AIRCON1_HDR_SPACE);
-
-  for (int i=0; i<2; i++) {
-    sendIRByte(sendBuffer[0], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-    sendIRByte(sendBuffer[0], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-    sendIRByte(sendBuffer[1], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-    sendIRByte(sendBuffer[1], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-
-    mark(PANASONIC_AIRCON1_HDR_MARK);
-    space(PANASONIC_AIRCON1_HDR_SPACE);
-  }
-
-  // Pause
-
-  mark(PANASONIC_AIRCON1_BIT_MARK);
-  space(PANASONIC_AIRCON1_MSG_SPACE);
-
-  // Header, two last bytes repeated
-
-  mark(PANASONIC_AIRCON1_HDR_MARK);
-  space(PANASONIC_AIRCON1_HDR_SPACE);
-
-  for (int i=0; i<2; i++) {
-    sendIRByte(sendBuffer[2], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-    sendIRByte(sendBuffer[2], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-    sendIRByte(sendBuffer[3], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-    sendIRByte(sendBuffer[3], PANASONIC_AIRCON1_BIT_MARK, PANASONIC_AIRCON1_ZERO_SPACE, PANASONIC_AIRCON1_ONE_SPACE);
-
-    mark(PANASONIC_AIRCON1_HDR_MARK);
-    space(PANASONIC_AIRCON1_HDR_SPACE);
-  }
-
-  mark(PANASONIC_AIRCON1_BIT_MARK);
-  space(0);
-}
 
 // Send the Panasonic DKE raw code
 
 void sendPanasonicDKEraw(byte operatingMode, byte fanSpeed, byte temperature, byte swingV, byte swingH)
 {
-  byte DKE_template[] = { 0x02, 0x20, 0xE0, 0x04, 0x00, 0x00, 0x00, 0x06, 0x02, 0x20, 0xE0, 0x04, 0x00, 0x48, 0x2E, 0x80, 0xA3, 0x0D, 0x00, 0x0E, 0xE0, 0x00, 0x00, 0x01, 0x00, 0x06, 0xA2 };
+  byte DKE_template[] = { 0x02, 0x20, 0xE0, 0x04, 0x00, 0x00, 0x00, 0x06, 0x02, 0x20, 0xE0, 0x04, 0x00, 0x48, 0x2E, 0x80, 0xA3, 0x0D, 0x00, 0x0E, 0xE0, 0x00, 0x00, 0x89, 0x00, 0x00, 0xA2 };
   byte checksum = 0xF4;
 
   DKE_template[13] = operatingMode;
@@ -388,11 +205,11 @@ void sendPanasonicDKEraw(byte operatingMode, byte fanSpeed, byte temperature, by
   for (int i=0; i<26; i++) {
     checksum += DKE_template[i];
   }
-  
+
   DKE_template[26] = checksum;
 
-  // 40 kHz PWM frequency
-  enableIROut(40);
+  // 36 kHz PWM frequency
+  enableIROut(36);
 
   // Header
   mark(PANASONIC_AIRCON2_HDR_MARK);
@@ -437,7 +254,7 @@ void sendIRByte(byte sendByte, int bitMarkLength, int zeroSpaceLength, int oneSp
       mark(bitMarkLength);
       space(zeroSpaceLength);
     }
-    
+
     sendByte >>= 1;
   }
 }
@@ -449,14 +266,14 @@ void sendIRByte(byte sendByte, int bitMarkLength, int zeroSpaceLength, int oneSp
 void mark(int time) {
   // Sends an IR mark for the specified number of microseconds.
   // The mark output is modulated at the PWM frequency.
-  (TCCR2A |= _BV(COM2B1)); // Enable pin 3 PWM output
+  (TCCR2A |= _BV(COM2B1)); // Enable pin 9 PWM output
   delayMicroseconds(time);
 }
 
 void space(int time) {
   // Sends an IR space for the specified number of microseconds.
   // A space is no output, so the PWM output is disabled.
-  (TCCR2A &= ~(_BV(COM2B1))); // Disable pin 3 PWM output
+  (TCCR2A &= ~(_BV(COM2B1))); // Disable pin 9 PWM output
   delayMicroseconds(time);
 }
 
@@ -480,147 +297,6 @@ void indexCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail,
 }
 
 
-// The send_ir_ckp.html. This handles the parameters submitted by the form
-
-void ckpFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tail, bool tail_complete)
-{
-  URLPARAM_RESULT rc;
-  char name[NAMELEN];
-  char value[VALUELEN];
-  int param = 0;
-
-  // Sensible defaults for the heat pump mode
-
-  byte operatingMode = PANASONIC_AIRCON1_MODE_HEAT | PANASONIC_AIRCON1_MODE_KEEP;
-  byte fanSpeed      = PANASONIC_AIRCON1_FAN_AUTO;
-  byte temperature   = 23;
-  byte swingV        = PANASONIC_AIRCON1_VS_UP;
-  byte swingH        = PANASONIC_AIRCON1_HS_AUTO;
-
-  server.httpSuccess();
-  server.printP(formactionpage_header);
-
-  if (strlen(url_tail))
-    {
-    while (strlen(url_tail))
-      {
-      rc = server.nextURLparam(&url_tail, name, NAMELEN, value, VALUELEN);
-      if (rc != URLPARAM_EOS)
-        {
-          if (strcmp(name, "power") == 0 )
-          {
-            operatingMode ^= PANASONIC_AIRCON1_MODE_KEEP;
-          }
-          else if (strcmp(name, "mode") == 0 )
-          {
-            operatingMode &= PANASONIC_AIRCON1_MODE_KEEP;
-            param = atoi(value);
-            
-            switch (param)
-            {
-              case 1:
-                operatingMode |= PANASONIC_AIRCON1_MODE_AUTO;
-                break;
-              case 2:
-                operatingMode |= PANASONIC_AIRCON1_MODE_HEAT;
-                break;
-              case 3:
-                operatingMode |= PANASONIC_AIRCON1_MODE_COOL;
-                break;
-              case 4:
-                operatingMode |= PANASONIC_AIRCON1_MODE_DRY;
-                break;
-              case 5:
-                operatingMode |= PANASONIC_AIRCON1_MODE_FAN;
-                break;
-            }
-          }
-          else if (strcmp(name, "fan") == 0 )
-          {
-            param = atoi(value);
-            
-            switch (param)
-            {
-              case 1:
-                fanSpeed = PANASONIC_AIRCON1_FAN_AUTO;
-                break;
-              case 2:
-                fanSpeed = PANASONIC_AIRCON1_FAN1;
-                break;
-              case 3:
-                fanSpeed = PANASONIC_AIRCON1_FAN2;
-                break;
-              case 4:
-                fanSpeed = PANASONIC_AIRCON1_FAN3;
-                break;
-              case 5:
-                fanSpeed = PANASONIC_AIRCON1_FAN4;
-                break;
-              case 6:
-                fanSpeed = PANASONIC_AIRCON1_FAN5;
-                break;
-            }
-          }
-          else if (strcmp(name, "temperature") == 0 )
-          {
-            param = atoi(value);
-            if ( param >= 15 && param <= 31)
-            {
-              temperature = param;
-            }
-          }
-          else if (strcmp(name, "vswing") == 0 )
-          {
-            param = atoi(value);
-        
-            switch (param)
-            {
-              case 1:
-                swingV = PANASONIC_AIRCON1_VS_AUTO;
-                break;
-              case 2:
-                swingV = PANASONIC_AIRCON1_VS_UP;
-                break;
-              case 3:
-                swingV = PANASONIC_AIRCON1_VS_MUP;
-                break;
-              case 4:
-                swingV = PANASONIC_AIRCON1_VS_MIDDLE;
-                break;
-              case 5:
-                swingV = PANASONIC_AIRCON1_VS_MDOWN;
-                break;
-              case 6:
-                swingV = PANASONIC_AIRCON1_VS_DOWN;
-                break;
-            }
-          }
-          else if (strcmp(name, "hswing") == 0 )
-          {
-            param = atoi(value);
-
-            switch (param)
-            {
-              case 1:
-                swingH = PANASONIC_AIRCON1_HS_AUTO;
-                break;
-              case 2:
-                swingH = PANASONIC_AIRCON1_HS_MANUAL;
-                break;
-            }
-          }          
-        server.print(name);
-        server.print(" = ");
-        server.print(param);
-        server.print("<br>");
-        }
-      }
-    }
-
-  server.printP(formactionpage_footer);
-  
-  sendPanasonicCKP(operatingMode, fanSpeed, temperature, swingV, swingH);
-}
 
 // The send_ir_dke.html. This handles the parameters submitted by the form
 
@@ -635,8 +311,8 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
 
   byte operatingMode = PANASONIC_AIRCON2_TIMER_CNL;
   byte fanSpeed      = PANASONIC_AIRCON2_FAN_AUTO;
-  byte temperature   = 23;
-  byte swingV        = PANASONIC_AIRCON2_VS_UP;
+  byte temperature   = 21;
+  byte swingV        = PANASONIC_AIRCON2_VS_AUTO;
   byte swingH        = PANASONIC_AIRCON2_HS_AUTO;
 
   server.httpSuccess();
@@ -652,7 +328,7 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
           if (strcmp(name, "power") == 0 )
           {
             param = atoi(value);
- 
+
             switch (param)
             {
               case 1:
@@ -662,7 +338,7 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
           else if (strcmp(name, "mode") == 0 )
           {
             param = atoi(value);
-            
+
             switch (param)
             {
               case 1:
@@ -686,7 +362,7 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
           else if (strcmp(name, "fan") == 0 )
           {
             param = atoi(value);
-            
+
             switch (param)
             {
               case 1:
@@ -709,10 +385,11 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
                 break;
             }
           }
+
           else if (strcmp(name, "temperature") == 0 )
           {
             param = atoi(value);
-            if ( param >= 15 && param <= 31 && temperature == 23)
+            if ((param >= 15 && param <= 31 || param == 8 || param == 10) && temperature == 21)
             {
               temperature = param;
             }
@@ -720,7 +397,7 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
           else if (strcmp(name, "vswing") == 0 )
           {
             param = atoi(value);
-        
+
             switch (param)
             {
               case 1:
@@ -768,7 +445,7 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
                 swingH = PANASONIC_AIRCON2_HS_MRIGHT;
                 break;
             }
-          }          
+          }
         server.print(name);
         server.print(" = ");
         server.print(param);
@@ -779,6 +456,18 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
 
   server.printP(formactionpage_footer);
 
+  if (temperature == 8 || temperature == 10)
+  {
+    if ((operatingMode & PANASONIC_AIRCON2_MODE_MASK) == PANASONIC_AIRCON2_MODE_HEAT)
+    {
+      fanSpeed = PANASONIC_AIRCON2_FAN5;
+    }
+    else
+    {
+      temperature = 21;
+    }
+  }
+
   sendPanasonicDKEraw(operatingMode, fanSpeed, temperature, swingV, swingH);
 }
 
@@ -786,12 +475,12 @@ void dkeFormCmd(WebServer &server, WebServer::ConnectionType type, char *url_tai
 
 void setup()
 {
-  // MAC address of the Arduino, this needs to be unique within 
+  // MAC address of the Arduino, this needs to be unique within
   // your home network
   static uint8_t mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 
   // IP address of the Arduino. Make sure this is outside of the DHCP pool
-  static uint8_t ip[] = { 192, 168, 0, 210 };
+  static uint8_t ip[] = { 192, 168, 1, 210 };
 
   // initialize the Ethernet adapter
   Ethernet.begin(mac, ip);
@@ -801,7 +490,6 @@ void setup()
   webserver.addCommand("index.html", &indexCmd);
 
   // The form handlers
-  webserver.addCommand("send_ir_ckp.html", &ckpFormCmd);
   webserver.addCommand("send_ir_dke.html", &dkeFormCmd);
 
   // start the webserver
